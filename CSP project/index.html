@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Literacy App</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .page { display: none; }
+        .page.active { display: block; }
+        body { margin: 0; padding: 0; height: 100vh; overflow: hidden; }
+        .container { height: 100vh; display: flex; flex-direction: column; }
+        .lessons-container { flex: 1; display: flex; }
+        .section { width: 50%; padding: 10px; overflow-y: auto; }
+        
+        #lessons-page {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+        
+        #language-page {
+            background: url('https://d12aarmt01l54a.cloudfront.net/cms/images/Media-20220413153514/808-440.png') center/cover no-repeat,
+                       linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c);
+            background-size: cover, 400% 400%;
+            animation: gradientShift 12s ease infinite, slowZoom 30s ease-in-out infinite;
+        }
+        
+        @keyframes slowZoom {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Selection Page -->
+    <div id="language-page" class="page active">
+        <div class="container index-page">
+            <div class="container">
+                <h1>Select Your Language</h1>
+                <div class="lang-selection">
+                    <button class="lang-btn" onclick="selectLanguage('english')">English</button>
+                    <button class="lang-btn" onclick="selectLanguage('hindi')">हिंदी</button>
+                    <button class="lang-btn" onclick="selectLanguage('telugu')">తెలుగు</button>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button id="install-btn" onclick="installApp()" style="background: #28a745; color: white; padding: 15px 30px; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1rem;">Install App</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lessons Page -->
+    <div id="lessons-page" class="page">
+        <div class="container">
+            <h1 id="page-title">Lessons</h1>
+            <button id="lang-change-btn" class="lang-change-btn" onclick="changeLang()" style="position: absolute; top: 60px; left: 80px; z-index: 1000;"></button>
+            <button id="chatbot-btn" class="lang-change-btn" onclick="showPage('chatbot-page')" style="position: absolute; top: 60px; right: 80px; z-index: 1000;">Chatbot</button>
+            <div style="text-align: center;">
+                <button id="quiz-btn" class="lang-change-btn" onclick="showPage('quiz-page')" style="background: #6c757d;"></button>
+            </div>
+            <div class="lessons-container">
+                <div id="computer-section" class="section"></div>
+                <div id="mobile-section" class="section"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot Page -->
+    <div id="chatbot-page" class="page">
+        <div class="container">
+            <div class="section" style="max-width: 800px; margin: 0 auto;">
+                <h2 id="chatbot-title">Digital Literacy Assistant</h2>
+                <div id="chat-container" style="height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; background: #f8f9fa;">
+                    <div id="chat-messages"></div>
+                </div>
+                <div id="suggested-prompts" style="margin-bottom: 15px;">
+                    <h4>Suggested Questions:</h4>
+                    <div id="prompt-buttons"></div>
+                </div>
+                <div style="text-align: center;">
+                    <button onclick="showPage('lessons-page')" style="background: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Back to Lessons</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Page -->
+    <div id="quiz-page" class="page">
+        <button onclick="showPage('language-page')" style="position: absolute; top: 20px; left: 20px; background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; z-index: 1000;" id="quiz-lang-change-btn">Change Language</button>
+        <div class="container" style="display: flex; align-items: center; justify-content: center;">
+            <div class="section" style="max-width: 600px; width: 100%;">
+                <h2 id="question-title">Question 1 of 5</h2>
+                <div id="question-content">
+                    <h3>How do you turn on a computer?</h3>
+                    <div style="text-align: left;">
+                        <label style="display: block; margin: 10px 0; cursor: pointer;">
+                            <input type="radio" name="answer" value="0"> Press power button
+                        </label>
+                        <label style="display: block; margin: 10px 0; cursor: pointer;">
+                            <input type="radio" name="answer" value="1"> Shake it
+                        </label>
+                        <label style="display: block; margin: 10px 0; cursor: pointer;">
+                            <input type="radio" name="answer" value="2"> Clap hands
+                        </label>
+                    </div>
+                </div>
+                <div style="margin-top: 30px; text-align: center;">
+                    <button id="prev-btn" onclick="prevQuestion()" style="background: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin-right: 10px; cursor: pointer; display: none;">Previous</button>
+                    <button id="next-btn" onclick="nextQuestion()" style="background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentPage = 'language-page';
+        let lang = localStorage.getItem('selectedLanguage') || 'english';
+        let currentQuestion = 0;
+        let answers = [];
+
+        // Language selection data
+        const installText = {
+            english: 'Install App',
+            hindi: 'ऐप इंस्टॉल करें',
+            telugu: 'యాప్ ఇన్స్టాల్ చేయండి'
+        };
+
+        // Lessons data
+        const lessonsData = [
+            {
+                key: 'computer1',
+                type: 'computer',
+                titles: {
+                    english: 'Turning on/off a computer',
+                    hindi: 'कंप्यूटर चालू/बंद करना',
+                    telugu: 'కంప్యూటర్ ఆన్/ఆఫ్ చేయడం'
+                }
+            },
+            {
+                key: 'computer2',
+                type: 'computer',
+                titles: {
+                    english: 'Using a mouse and keyboard',
+                    hindi: 'माउस और कीबोर्ड का उपयोग',
+                    telugu: 'మౌస్ మరియు కీబోర్డ్ వాడకం'
+                }
+            },
+            {
+                key: 'computer3',
+                type: 'computer',
+                titles: {
+                    english: 'Understanding the desktop environment',
+                    hindi: 'डेस्कटॉप वातावरण को समझना',
+                    telugu: 'డెస్క్టాప్ వాతావరణాన్ని అర్థం చేసుకోవడం'
+                }
+            },
+            {
+                key: 'computer4',
+                type: 'computer',
+                titles: {
+                    english: 'Basic file management (creating folders, saving files)',
+                    hindi: 'मूल फ़ाइल प्रबंधन (फोल्डर बनाना, फ़ाइलें सहेजना)',
+                    telugu: 'ప్రాథమిక ఫైల్ నిర్వహణ (ఫోల్డర్లు సృష్టించడం, ఫైళ్లను సేవ్ చేయడం)'
+                }
+            },
+            {
+                key: 'computer5',
+                type: 'computer',
+                titles: {
+                    english: 'Introduction to the internet and web browsing',
+                    hindi: 'इंटरनेट और वेब ब्राउज़िंग का परिचय',
+                    telugu: 'ఇంటర్నెట్ మరియు వెబ్ బ్రౌజింగ్ పరిచయం'
+                }
+            },
+            {
+                key: 'computer6',
+                type: 'computer',
+                titles: {
+                    english: 'Understanding online safety and privacy',
+                    hindi: 'ऑनलाइन सुरक्षा और गोपनीयता को समझना',
+                    telugu: 'ఆన్లైన్ భద్రత మరియు గోప్యతను అర్థం చేసుకోవడం'
+                }
+            },
+            {
+                key: 'mobile1',
+                type: 'mobile',
+                titles: {
+                    english: 'Turning On/off a Mobile',
+                    hindi: 'मोबाइल चालू/बंद करना',
+                    telugu: 'మొబైల్ ఆన్/ఆఫ్ చేయడం'
+                }
+            },
+            {
+                key: 'mobile2',
+                type: 'mobile',
+                titles: {
+                    english: 'Making and receiving calls',
+                    hindi: 'कॉल करना और प्राप्त करना',
+                    telugu: 'కాల్ చేయడం మరియు స్వీకరించడం'
+                }
+            },
+            {
+                key: 'mobile3',
+                type: 'mobile',
+                titles: {
+                    english: 'Sending and receiving messages',
+                    hindi: 'संदेश भेजना और प्राप्त करना',
+                    telugu: 'సందేశాలు పంపడం మరియు స్వీకరించడం'
+                }
+            },
+            {
+                key: 'mobile4',
+                type: 'mobile',
+                titles: {
+                    english: 'Using basic apps (camera, gallery, calculator)',
+                    hindi: 'मूल ऐप्स का उपयोग (कैमरा, गैलरी, कैलकुलेटर)',
+                    telugu: 'ప్రాథమిక యాప్స్ వాడకం (కెమెరా, గ్యాలరీ, కాలిక్యులేటర్)'
+                }
+            },
+            {
+                key: 'mobile5',
+                type: 'mobile',
+                titles: {
+                    english: 'Connecting to Wi-Fi',
+                    hindi: 'वाई-फाई से कनेक्ट करना',
+                    telugu: 'వై-ఫైకి కనెక్ట్ అవ్వడం'
+                }
+            },
+            {
+                key: 'mobile6',
+                type: 'mobile',
+                titles: {
+                    english: 'Using online communication tools (e.g., WhatsApp)',
+                    hindi: 'ऑनलाइन संचार उपकरणों का उपयोग (जैसे, व्हाट्सएप)',
+                    telugu: 'ఆన్లైన్ కమ్యూనికేషన్ టూల్స్ వాడకం (ఉదా: వాట్సాప్)'
+                }
+            }
+        ];
+
+        const videoIds = {
+            telugu: {
+                computer: ['1mmAf5emWCp6d7PLnKBBTZKnOmaKMTFlD', '1NqdN3ERi4V9EbbLvLmpWbSp_IKlTmdbF', '193IRIfv2QFcpHhE1wCB-63jr2rd7Pijf', '1Dmsg17FsquXuy8k_SGF8o6dvTz5KOKsH', '1y-ElFiRXvNE5StQ38RAT8prDb74N0lBT', '1K3gcv0Pp7EQgF9yVaiHFhy7ahY1qC9ac'],
+                mobile: ['10Qj7oM72HuI0Ku9sXeyitIdZkUrNFDuw', '14Ri4cGe2MYIGwmhNBkPPYlcG54hX-Md0', '1m26Deu4cXIG65Pal3hbKRZhhNlDeUoHN', '13xXMT-yMDxiKtiMtN9pf8E397-2J-512', '1ubmwP7lT3S27sGoicyHYtHD7KGQFs-Gy', '1gyXp3FCc2R5IpAZgyONCKw3_a3nDOr7s']
+            },
+            hindi: {
+                computer: ['1QtF5qq__QDfL3YIroBiqMjR5-tsYWBre', '1Y5OKNQ8Jx8vHAE8LJqidPugPpY9JF0Hs', '1F71eRngkEC2b92sg4qqOmSTWW46fxQ8H', '1dwdrQepYSuQy2xvVSAFKEzRq7ZadQZGW', '17tjynv6W4HBw2Dou9IMujUqBC_wxG3NT', '15_TzIL7YeAYl8Ly0rGKEAyfm7NixRHFU'],
+                mobile: ['1bSuLi_9Ew1mTbTn-aUptQVhoD7uccjy1', '1j3fAeA-B0VywjXTedxj_-X5ReCGbwhYV', '1PuK4zFSGF1sMwm5V2awbGE9VKepGf1_z', '17npEwRWbeYgYnesMCi07Kz7CTL4A51gq', '1tvTs51djoRP_Ip3oGWu1fHIbNJ7UCyu6', '1E0IIOaboJ6tuOgFJqkQRFkZXc91k_RRd']
+            },
+            english: {
+                computer: ['1DVqGDpoIsu4aVbXUGoaS1wSqzFCBwNLE', '1hrk65Gj8Eji2sBFvjI_8pTaNBL-ara8o', '1pXEC4ePTuW6j7G3GmlbG0y_bamjiZAqw', '1PTxQikVm9KPX-KUZt854PGXc-L_KzCmy', '1seKjTi9VcZamREYs29pXfX6BTzCGGNNw', '10K5QVPDfBVajpFyBe7hDsPiXMsNiGJSd'],
+                mobile: ['1VhqLPSUVFkl3pQE6Y893_CyCdEaoNcmZ', '1qUVebjOgxCf1SRFlWVBQ99BapaQxwDRO', '11C7C3aw2wbxVMjAsY7zL2u35qs5selII', '1hTwh0HrNgBGuR10oDwixs3oYR-GJX4Wc', '1USaf0XYOEsz7uwrAY930mpfPFXL32NAx', '1bL4fjhhuo08tJ0CmC8EtrwBtaNVrWyiJ']
+            }
+        };
+
+        // Chatbot data
+        const prompts = {
+            english: [
+                { q: 'How to turn on a computer?', a: 'Press the power button on your computer. It\'s usually located on the front or side of the computer case.' },
+                { q: 'How to use a mouse?', a: 'Hold the mouse with your dominant hand. Move it on a flat surface to move the cursor. Left-click to select, right-click for options.' },
+                { q: 'How to connect to Wi-Fi?', a: 'Go to Settings > Wi-Fi on your device. Select your network name and enter the password.' },
+                { q: 'How to make a phone call?', a: 'Open the phone app, dial the number using the keypad, and press the call button.' },
+                { q: 'What is WhatsApp?', a: 'WhatsApp is a messaging app that lets you send text messages, photos, and make voice/video calls over the internet.' }
+            ],
+            hindi: [
+                { q: 'कंप्यूटर कैसे चालू करें?', a: 'अपने कंप्यूटर पर पावर बटन दबाएं। यह आमतौर पर कंप्यूटर केस के सामने या बगल में होता है।' },
+                { q: 'माउस का उपयोग कैसे करें?', a: 'माउस को अपने मुख्य हाथ से पकड़ें। कर्सर को हिलाने के लिए इसे समतल सतह पर हिलाएं। चुनने के लिए बाएं-क्लिक करें, विकल्पों के लिए दाएं-क्लिक करें।' },
+                { q: 'वाई-फाई से कैसे जुड़ें?', a: 'अपने डिवाइस पर सेटिंग्स > वाई-फाई पर जाएं। अपना नेटवर्क नाम चुनें और पासवर्ड डालें।' },
+                { q: 'फोन कॉल कैसे करें?', a: 'फोन ऐप खोलें, कीपैड का उपयोग करके नंबर डायल करें, और कॉल बटन दबाएं।' },
+                { q: 'व्हाट्सएप क्या है?', a: 'व्हाट्सएप एक मैसेजिंग ऐप है जो आपको इंटरनेट पर टेक्स्ट मैसेज, फोटो भेजने और वॉयस/वीडियो कॉल करने की सुविधा देता है।' }
+            ],
+            telugu: [
+                { q: 'కంప్యూటర్ ఎలా ఆన్ చేయాలి?', a: 'మీ కంప్యూటర్లో పవర్ బటన్ నొక్కండి. ఇది సాధారణంగా కంప్యూటర్ కేస్ ముందు లేదా పక్కన ఉంటుంది.' },
+                { q: 'మౌస్ ఎలా వాడాలి?', a: 'మౌస్ను మీ ప్రధాన చేతితో పట్టుకోండి. కర్సర్ను కదిలించడానికి దానిని చదునైన ఉపరితలంపై కదిలించండి. ఎంచుకోవడానికి ఎడమ-క్లిక్ చేయండి, ఎంపికల కోసం కుడి-క్లిక్ చేయండి.' },
+                { q: 'వై-ఫైకి ఎలా కనెక్ట్ అవ్వాలి?', a: 'మీ పరికరంలో సెట్టింగ్స్ > వై-ఫై వెళ్లండి. మీ నెట్వర్క్ పేరును ఎంచుకుని పాస్వర్డ్ నమోదు చేయండి.' },
+                { q: 'ఫోన్ కాల్ ఎలా చేయాలి?', a: 'ఫోన్ యాప్ తెరవండి, కీప్యాడ్ ఉపయోగించి నంబర్ డయల్ చేసి, కాల్ బటన్ నొక్కండి.' },
+                { q: 'వాట్సాప్ అంటే ఏమిటి?', a: 'వాట్సాప్ అనేది మెసేజింగ్ యాప్, ఇది మీకు ఇంటర్నెట్ ద్వారా టెక్స్ట్ మెసేజ్లు, ఫోటోలు పంపడానికి మరియు వాయిస్/వీడియో కాల్లు చేయడానికి అనుమతిస్తుంది.' }
+            ]
+        };
+
+        // Quiz data
+        const quizData = {
+            english: [
+                { q: 'How do you turn on a computer?', options: ['Press power button', 'Shake it', 'Clap hands'], correct: 0 },
+                { q: 'What is used to click on screen items?', options: ['Keyboard', 'Mouse', 'Monitor'], correct: 1 },
+                { q: 'Where do you type text?', options: ['Mouse', 'Monitor', 'Keyboard'], correct: 2 },
+                { q: 'How do you make a phone call?', options: ['Dial number and press call', 'Shake phone', 'Press volume'], correct: 0 },
+                { q: 'What app is used for messaging?', options: ['Camera', 'WhatsApp', 'Calculator'], correct: 1 }
+            ],
+            hindi: [
+                { q: 'कंप्यूटर कैसे चालू करते हैं?', options: ['पावर बटन दबाएं', 'हिलाएं', 'ताली बजाएं'], correct: 0 },
+                { q: 'स्क्रीन पर क्लिक करने के लिए क्या उपयोग करते हैं?', options: ['कीबोर्ड', 'माउस', 'मॉनिटर'], correct: 1 },
+                { q: 'टेक्स्ट कहाँ टाइप करते हैं?', options: ['माउस', 'मॉनिटर', 'कीबोर्ड'], correct: 2 },
+                { q: 'फोन कॉल कैसे करते हैं?', options: ['नंबर डायल करें और कॉल दबाएं', 'फोन हिलाएं', 'वॉल्यूम दबाएं'], correct: 0 },
+                { q: 'मैसेजिंग के लिए कौन सा ऐप उपयोग करते हैं?', options: ['कैमरा', 'व्हाट्सएप', 'कैलकुलेटर'], correct: 1 }
+            ],
+            telugu: [
+                { q: 'కంప్యూటర్ ఎలా ఆన్ చేయాలి?', options: ['పవర్ బటన్ నొక్కండి', 'వణుకు', 'చప్పట్లు కొట్టండి'], correct: 0 },
+                { q: 'స్క్రీన్ మీద క్లిక్ చేయడానికి ఏమి వాడతారు?', options: ['కీబోర్డ్', 'మౌస్', 'మానిటర్'], correct: 1 },
+                { q: 'టెక్స్ట్ ఎక్కడ టైప్ చేస్తారు?', options: ['మౌస్', 'మానిటర్', 'కీబోర్డ్'], correct: 2 },
+                { q: 'ఫోన్ కాల్ ఎలా చేయాలి?', options: ['నంబర్ డయల్ చేసి కాల్ నొక్కండి', 'ఫోన్ వణుకు', 'వాల్యూమ్ నొక్కండి'], correct: 0 },
+                { q: 'మెసేజింగ్ కోసం ఏ యాప్ వాడతారు?', options: ['కెమెరా', 'వాట్సాప్', 'కాలిక్యులేటర్'], correct: 1 }
+            ]
+        };
+
+        // Text translations
+        const text = {
+            english: {
+                title: 'Digital Literacy Assistant',
+                back: 'Back to Lessons',
+                complete: 'Quiz Complete!',
+                score: 'Your Score:',
+                enterName: 'Enter your name for certificate',
+                generateCert: 'Generate Certificate',
+                backToLessons: 'Back to Lessons',
+                enterNameAlert: 'Please enter your name',
+                certDownloaded: 'Certificate downloaded successfully!'
+            },
+            hindi: {
+                title: 'डिजिटल साक्षरता सहायक',
+                back: 'पाठों पर वापस जाएं',
+                complete: 'क्विज़ पूर्ण!',
+                score: 'आपका स्कोर:',
+                enterName: 'प्रमाणपत्र के लिए अपना नाम दर्ज करें',
+                generateCert: 'प्रमाणपत्र बनाएं',
+                backToLessons: 'पाठों पर वापस जाएं',
+                enterNameAlert: 'कृपया अपना नाम दर्ज करें',
+                certDownloaded: 'प्रमाणपत्र सफलतापूर्वक डाउनलोड हो गया!'
+            },
+            telugu: {
+                title: 'డిజిటల్ అక్షరాస్యత సహాయకుడు',
+                back: 'పాఠాలకు తిరిగి వెళ్లండి',
+                complete: 'క్విజ్ పూర్తయింది!',
+                score: 'మీ స్కోర్:',
+                enterName: 'సర్టిఫికేట్ కోసం మీ పేరు నమోదు చేయండి',
+                generateCert: 'సర్టిఫికేట్ రూపొందించండి',
+                backToLessons: 'పాఠాలకు తిరిగి వెళ్లండి',
+                enterNameAlert: 'దయచేసి మీ పేరు నమోదు చేయండి',
+                certDownloaded: 'సర్టిఫికేట్ విజయవంతంగా డౌన్లోడ్ అయింది!'
+            }
+        };
+
+        const langMap = {
+            english: 'English',
+            hindi: 'हिंदी',
+            telugu: 'తెలుగు'
+        };
+
+        const langChangeText = {
+            english: 'Change Language',
+            hindi: 'भाषा बदलें',
+            telugu: 'భాష మార్చండి'
+        };
+
+        const progressText = {
+            english: 'Progress',
+            hindi: 'प्रगति',
+            telugu: 'పురోగతి'
+        };
+
+        const completedText = {
+            english: 'Completed',
+            hindi: 'पूर्ण',
+            telugu: 'పూర్తయింది'
+        };
+
+        const resetText = {
+            english: 'Reset Progress',
+            hindi: 'प्रगति रीसेट करें',
+            telugu: 'పురోగతి రీసెట్ చేయండి'
+        };
+
+        const quizText = {
+            english: 'Take Quiz',
+            hindi: 'क्विज़ लें',
+            telugu: 'క్విజ్ తీసుకోండి'
+        };
+
+        const chatbotText = {
+            english: 'Chatbot',
+            hindi: 'चैटबॉट',
+            telugu: 'చాట్బాట్'
+        };
+
+        // PWA functionality
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+        
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        alert('App installed to home screen!');
+                    }
+                    deferredPrompt = null;
+                });
+            } else if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+                alert('To install: Tap Share button, then "Add to Home Screen"');
+            } else {
+                const blob = new Blob([`[InternetShortcut]\\nURL=${window.location.href}`], {type: 'text/plain'});
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'CSP Digital Literacy.url';
+                link.click();
+                alert('Shortcut downloaded! Move to Desktop.');
+            }
+        }
+
+        // Page navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            currentPage = pageId;
+            
+            if (pageId === 'chatbot-page') {
+                initChatbot();
+            } else if (pageId === 'quiz-page') {
+                initQuiz();
+            } else if (pageId === 'lessons-page') {
+                initLessons();
+            }
+        }
+
+        // Language selection
+        function selectLanguage(selectedLang) {
+            localStorage.setItem('selectedLanguage', selectedLang);
+            lang = selectedLang;
+            document.getElementById('install-btn').innerText = installText[lang];
+            showPage('lessons-page');
+        }
+
+        function changeLang() {
+            showPage('language-page');
+        }
+
+        // Lessons functionality
+        function initLessons() {
+            document.getElementById('page-title').innerText = `Lessons (${langMap[lang]})`;
+            document.getElementById('lang-change-btn').innerText = langChangeText[lang];
+            document.getElementById('chatbot-btn').innerText = chatbotText[lang];
+            document.getElementById('quiz-btn').innerText = quizText[lang];
+            
+            renderSection('computer', 'computer');
+            renderSection('mobile', 'mobile');
+            checkQuizAvailability();
+        }
+
+        function getProgress(type) {
+            const key = `progress_${lang}_${type}`;
+            return JSON.parse(localStorage.getItem(key) || '{}');
+        }
+        
+        function setProgress(type, lessonIndex) {
+            const key = `progress_${lang}_${type}`;
+            const progress = getProgress(type);
+            progress[lessonIndex] = true;
+            localStorage.setItem(key, JSON.stringify(progress));
+        }
+        
+        function calculateProgress(type) {
+            const progress = getProgress(type);
+            const completed = Object.keys(progress).length;
+            const total = lessonsData.filter(l => l.type === type).length;
+            return { completed, total, percentage: Math.round((completed / total) * 100) };
+        }
+
+        function renderSection(section, type) {
+            const sectionDiv = document.getElementById(section + '-section');
+            const lessons = lessonsData.filter(l => l.type === type);
+            const progress = calculateProgress(type);
+            const progressData = getProgress(type);
+            
+            let html = `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h2 style="margin: 0;">${type.charAt(0).toUpperCase() + type.slice(1)} Lessons</h2>
+                <button onclick="resetSectionProgress('${type}')" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; cursor: pointer;">${resetText[lang]}</button>
+            </div>`;
+            html += `<div class="progress-text">${progressText[lang]}: ${progress.completed}/${progress.total} (${progress.percentage}%)</div>`;
+            html += `<div class="progress-bar"><div class="progress-fill" style="width: ${progress.percentage}%"></div></div>`;
+            html += `<select id="${section}-dropdown" onchange="showLesson('${section}')">
+                ${lessons.map((l, i) => {
+                    const completed = progressData[i] ? ` <span class="completion-badge">${completedText[lang]}</span>` : '';
+                    return `<option value="${i}">${l.titles[lang]}${completed}</option>`;
+                }).join('')}
+            </select>`;
+            html += `<div id="${section}-lesson" class="lesson-content"></div>`;
+            sectionDiv.innerHTML = html;
+            showLesson(section);
+        }
+
+        window.showLesson = function(section) {
+            const type = section;
+            const lessons = lessonsData.filter(l => l.type === type);
+            const idx = document.getElementById(`${section}-dropdown`).value;
+            const lesson = lessons[idx];
+            const lessonDiv = document.getElementById(`${section}-lesson`);
+            const progressData = getProgress(type);
+            const isCompleted = progressData[idx];
+            const videoId = videoIds[lang][type][idx];
+            
+            const nextIdx = parseInt(idx) + 1;
+            const hasNext = nextIdx < lessons.length;
+            
+            if (videoId) {
+                lessonDiv.innerHTML = `
+                    <div class="lesson-title">${lesson.titles[lang]}${isCompleted ? `<span class="completion-badge">${completedText[lang]}</span>` : ''}</div>
+                    <iframe src="https://drive.google.com/file/d/${videoId}/preview" width="100%" height="200" style="margin-top:10px;" frameborder="0" allowfullscreen></iframe>
+                    <div style="margin-top: 10px;">
+                        <button onclick="markAsCompleted('${type}', ${idx})" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; margin-right: 10px;">${isCompleted ? completedText[lang] : 'Mark as Completed'}</button>
+                        ${hasNext ? `<button onclick="nextLesson('${section}', ${nextIdx})" style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">Next Lesson</button>` : ''}
+                    </div>
+                `;
+            } else {
+                lessonDiv.innerHTML = `
+                    <div class="lesson-title">${lesson.titles[lang]}${isCompleted ? `<span class="completion-badge">${completedText[lang]}</span>` : ''}</div>
+                    <p>Video not available yet</p>
+                `;
+            }
+        }
+
+        function resetSectionProgress(type) {
+            localStorage.removeItem(`progress_${lang}_${type}`);
+            renderSection(type, type);
+        }
+        
+        function checkQuizAvailability() {
+            const quizBtn = document.getElementById('quiz-btn');
+            quizBtn.style.background = '#28a745';
+            quizBtn.disabled = false;
+            quizBtn.innerText = quizText[lang];
+        }
+
+        window.markAsCompleted = function(type, idx) {
+            setProgress(type, idx);
+            renderSection(type, type);
+            checkQuizAvailability();
+        }
+        
+        window.nextLesson = function(section, nextIdx) {
+            document.getElementById(`${section}-dropdown`).value = nextIdx;
+            showLesson(section);
+        }
+
+        // Chatbot functionality
+        function initChatbot() {
+            document.getElementById('chatbot-title').innerText = text[lang].title;
+            createPromptButtons();
+            clearChatMessages();
+            addMessage(lang === 'english' ? 'Hello! Click on any question below to get help with digital literacy.' : 
+                      lang === 'hindi' ? 'नमस्ते! डिजिटल साक्षरता में मदद पाने के लिए नीचे किसी भी प्रश्न पर क्लिक करें।' : 
+                      'హలో! డిజిటల్ అక్షరాస్యతలో సహాయం పొందడానికి దిగువ ఏదైనా ప్రశ్నపై క్లిక్ చేయండి।');
+        }
+
+        function addMessage(message, isUser = false) {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.style.cssText = `margin: 10px 0; padding: 10px; border-radius: 10px; ${isUser ? 'background: #007bff; color: white; text-align: right; margin-left: 20%;' : 'background: white; border: 1px solid #ddd; margin-right: 20%;'}`;
+            messageDiv.innerHTML = message;
+            chatMessages.appendChild(messageDiv);
+            document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight;
+        }
+
+        function clearChatMessages() {
+            document.getElementById('chat-messages').innerHTML = '';
+        }
+
+        function createPromptButtons() {
+            const promptButtons = document.getElementById('prompt-buttons');
+            promptButtons.innerHTML = '';
+            prompts[lang].forEach((prompt, index) => {
+                const button = document.createElement('button');
+                button.innerText = prompt.q;
+                button.style.cssText = 'display: block; width: 100%; margin: 5px 0; padding: 10px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; text-align: left;';
+                button.onclick = () => showAnswer(index);
+                promptButtons.appendChild(button);
+            });
+        }
+
+        function showAnswer(index) {
+            const prompt = prompts[lang][index];
+            addMessage(prompt.q, true);
+            setTimeout(() => {
+                addMessage(prompt.a);
+            }, 500);
+        }
+
+        // Quiz functionality
+        function initQuiz() {
+            document.getElementById('quiz-lang-change-btn').innerText = langChangeText[lang];
+            currentQuestion = 0;
+            answers = [];
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const questions = quizData[lang];
+            const question = questions[currentQuestion];
+            document.getElementById('question-title').innerText = `Question ${currentQuestion + 1} of ${questions.length}`;
+            
+            let html = `<h3>${question.q}</h3><div style="text-align: left;">`;
+            question.options.forEach((opt, i) => {
+                const checked = answers[currentQuestion] === i ? 'checked' : '';
+                html += `<label style="display: block; margin: 10px 0; cursor: pointer;">
+                    <input type="radio" name="answer" value="${i}" ${checked} onchange="selectAnswer(${i})"> ${opt}
+                </label>`;
+            });
+            html += '</div>';
+            
+            document.getElementById('question-content').innerHTML = html;
+            document.getElementById('prev-btn').style.display = currentQuestion === 0 ? 'none' : 'inline-block';
+            document.getElementById('next-btn').innerText = currentQuestion === questions.length - 1 ? 'Submit' : 'Next';
+        }
+
+        function selectAnswer(answerIndex) {
+            answers[currentQuestion] = answerIndex;
+        }
+
+        function nextQuestion() {
+            const questions = quizData[lang];
+            if (currentQuestion === questions.length - 1) {
+                showResults();
+            } else {
+                currentQuestion++;
+                showQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+            }
+        }
+
+        function showResults() {
+            const questions = quizData[lang];
+            let score = 0;
+            questions.forEach((q, i) => {
+                if (answers[i] === q.correct) score++;
+            });
+            
+            let html = `<h3>${text[lang].complete}</h3><p>${text[lang].score} ${score}/${questions.length}</p>`;
+            
+            if (score === questions.length) {
+                html += `
+                    <input type="text" id="user-name" placeholder="${text[lang].enterName}" style="padding: 10px; margin: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                    <button onclick="generateCertificate()" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 10px;">${text[lang].generateCert}</button>
+                `;
+            }
+            
+            html += `<button onclick="showPage('lessons-page')" style="background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 10px;">${text[lang].backToLessons}</button>`;
+            
+            document.getElementById('question-content').innerHTML = html;
+            document.getElementById('prev-btn').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+        }
+
+        function generateCertificate() {
+            const name = document.getElementById('user-name').value.trim();
+            if (!name) {
+                alert(text[lang].enterNameAlert);
+                return;
+            }
+            
+            // Display certificate on page
+            const html = `
+                <div style="text-align: center; padding: 20px;">
+                    <div style="border: 8px solid #007bff; padding: 40px; background: #f8f9fa; border-radius: 10px; margin: 20px auto; max-width: 600px;">
+                        <h1 style="color: #007bff; font-size: 36px; margin: 0 0 20px 0;">Certificate of Completion</h1>
+                        <p style="font-size: 18px; margin: 20px 0; color: #333;">This is to certify that</p>
+                        <h2 style="color: #007bff; font-size: 28px; margin: 20px 0;">${name}</h2>
+                        <p style="font-size: 18px; margin: 20px 0; color: #333;">has successfully completed the</p>
+                        <h3 style="color: #333; font-size: 22px; margin: 20px 0;">Digital Literacy Quiz</h3>
+                        <p style="font-size: 16px; margin-top: 30px; color: #666;">Date: ${new Date().toLocaleDateString()}</p>
+                    </div>
+                    <button onclick="downloadCertificate('${name}')" style="background: #28a745; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; margin: 10px;">Download Certificate</button>
+                    <button onclick="showPage('lessons-page')" style="background: #007bff; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; margin: 10px;">${text[lang].backToLessons}</button>
+                </div>
+            `;
+            
+            document.getElementById('question-content').innerHTML = html;
+        }
+        
+        function downloadCertificate(name) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, 800, 600);
+            ctx.strokeStyle = '#007bff';
+            ctx.lineWidth = 10;
+            ctx.strokeRect(20, 20, 760, 560);
+            
+            ctx.fillStyle = '#007bff';
+            ctx.font = 'bold 48px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Certificate of Completion', 400, 150);
+            
+            ctx.fillStyle = '#333';
+            ctx.font = '24px Arial';
+            ctx.fillText('This is to certify that', 400, 250);
+            
+            ctx.font = 'bold 36px Arial';
+            ctx.fillStyle = '#007bff';
+            ctx.fillText(name, 400, 320);
+            
+            ctx.fillStyle = '#333';
+            ctx.font = '24px Arial';
+            ctx.fillText('has successfully completed the', 400, 380);
+            ctx.fillText('Digital Literacy Quiz', 400, 420);
+            
+            ctx.font = '18px Arial';
+            ctx.fillText('Date: ' + new Date().toLocaleDateString(), 400, 500);
+            
+            const link = document.createElement('a');
+            link.download = `certificate-${name.replace(/\s+/g, '-')}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+            
+            alert(text[lang].certDownloaded);
+        }
+
+        // Initialize app
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
+
+        // Set initial button text
+        const currentLang = localStorage.getItem('selectedLanguage') || 'english';
+        document.getElementById('install-btn').innerText = installText[currentLang];
+
+        // Initialize based on stored language
+        if (localStorage.getItem('selectedLanguage')) {
+            lang = localStorage.getItem('selectedLanguage');
+            showPage('lessons-page');
+        }
+    </script>
+</body>
+</html>

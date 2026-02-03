@@ -1,0 +1,245 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+body.index-page {
+    background: url('https://d12aarmt01l54a.cloudfront.net/cms/images/Media-20220413153514/808-440.png') center/cover no-repeat, linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    animation: slowZoom 20s ease-in-out infinite;
+}
+
+@keyframes slowZoom {
+    0%, 100% { background-size: 100% 100%; }
+    50% { background-size: 105% 105%; }
+}
+
+body.index-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 1;
+}
+
+body.index-page .container {
+    position: relative;
+    z-index: 2;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+h1 {
+    color: white;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.5rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+
+
+h2 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+.lang-selection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+.lang-btn, .lang-change-btn {
+    background: rgba(255,255,255,0.95);
+    border: none;
+    padding: 20px 40px;
+    font-size: 1.2rem;
+    border-radius: 15px;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+}
+
+.lang-btn:hover, .lang-change-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    background: rgba(255,255,255,1);
+}
+
+.lang-btn:active, .lang-change-btn:active {
+    transform: scale(0.95) translateY(-1px);
+    transition: transform 0.1s ease;
+}
+
+.lang-btn {
+    transition: all 0.3s ease;
+}
+
+.lang-btn:focus {
+    animation: pulse 0.6s ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+
+
+.lang-change-btn {
+    background: #007bff;
+    color: white;
+    margin-bottom: 20px;
+    padding: 12px 25px;
+    font-size: 1rem;
+}
+
+.lang-change-btn:hover {
+    background: #0056b3;
+}
+
+.lessons-container {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+.section {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    min-width: 300px;
+    max-width: 500px;
+}
+
+select {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 1.1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    background: white;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+select:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.lesson-content {
+    text-align: center;
+}
+
+.lesson-title {
+    font-weight: 600;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+    color: #495057;
+    line-height: 1.4;
+}
+
+video {
+    width: 100%;
+    max-width: 480px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    margin-top: 15px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    margin: 10px 0;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #28a745, #20c997);
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.lesson-completed {
+    background: #d4edda !important;
+    border-color: #c3e6cb !important;
+}
+
+.completion-badge {
+    display: inline-block;
+    background: #28a745;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    margin-left: 10px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .lang-btn {
+        padding: 15px 30px;
+        font-size: 1.1rem;
+    }
+    
+    .lessons-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .section {
+        width: 100%;
+        max-width: 400px;
+    }
+    
+    video {
+        max-width: 100%;
+    }
+}
